@@ -5,8 +5,6 @@ interface Props {
   optedOutRollNumbers: string[];
   onRollNumbersChange: (rolls: string[]) => void;
   onOptedOutChange: (rolls: string[]) => void;
-  optOutDeadline: string;
-  onDeadlineChange: (date: string) => void;
 }
 
 export default function RosterManager({
@@ -14,11 +12,9 @@ export default function RosterManager({
   optedOutRollNumbers,
   onRollNumbersChange,
   onOptedOutChange,
-  optOutDeadline,
-  onDeadlineChange,
 }: Props) {
   const [bulkInput, setBulkInput] = useState(rollNumbers.join("\n"));
-  const [optOutInput, setOptOutInput] = useState(optedOutRollNumbers.join(", "));
+  const [optOutInput, setOptOutInput] = useState(optedOutRollNumbers.join("\n"));
 
   useEffect(() => {
     const rolls = bulkInput
@@ -37,7 +33,7 @@ export default function RosterManager({
   }, [optOutInput]);
 
   return (
-    <div className="space-y-5">
+    <div className="grid grid-cols-2 gap-5">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Roll Numbers
@@ -46,7 +42,7 @@ export default function RosterManager({
         <textarea
           value={bulkInput}
           onChange={(e) => setBulkInput(e.target.value)}
-          rows={8}
+          rows={10}
           className="w-full text-sm font-mono border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
         />
       </div>
@@ -62,20 +58,8 @@ export default function RosterManager({
         <textarea
           value={optOutInput}
           onChange={(e) => setOptOutInput(e.target.value)}
-          rows={2}
+          rows={10}
           className="w-full text-sm font-mono border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Opt-Out Deadline
-        </label>
-        <input
-          type="date"
-          value={optOutDeadline}
-          onChange={(e) => onDeadlineChange(e.target.value)}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
     </div>

@@ -3,7 +3,7 @@ import type { ExamConfig, ShareableExamConfig } from "../lib/types";
 import { computeConstraintIndex } from "../lib/assignment";
 import { composeQuestion } from "../lib/compose";
 import { getExamConfig } from "../lib/storage";
-import { checkRosterMembership, normalizeRoll } from "../lib/roster";
+import { checkRosterMembership, normalizeRoll, getConstraintCount, getConstraintDescription } from "../lib/roster";
 import { decodeFromLink, isCompressionSupported } from "../lib/linkCodec";
 import RollNumberInput from "../components/student/RollNumberInput";
 import QuestionDisplay from "../components/student/QuestionDisplay";
@@ -71,10 +71,10 @@ export default function StudentPage({ examId, encodedConfig }: Props) {
     const idx = await computeConstraintIndex(
       normalized,
       config.seed,
-      config.constraints.length
+      getConstraintCount(config)
     );
-    const constraint = config.constraints[idx];
-    const composed = composeQuestion(config.baseProblem, constraint);
+    const description = getConstraintDescription(config, idx);
+    const composed = composeQuestion(config.baseProblem, description);
     setQuestion(composed);
   };
 

@@ -17,24 +17,24 @@ export interface ExamConfig {
   rollNumbers: string[];
   optedOutRollNumbers: string[];
   createdAt: string;
-  optOutDeadline: string;
 }
 
-// Sent to students via the shareable link. Carries roster/opt-out membership as
-// hashes instead of plaintext so a student can't read the full class roster
-// out of their own link.
+// Sent to students via the shareable link. Trimmed to only what the student
+// flow actually reads (see roster.ts / StudentPage.tsx) — no id, course code,
+// semester, commitment hash, or per-constraint index/label — to keep the link
+// as short as possible. Roster/opt-out membership is carried as hashes
+// instead of plaintext so a student can't read the full class roster out of
+// their own link.
 export interface ShareableExamConfig {
-  id: string;
   courseName: string;
-  courseCode: string;
   examDate: string;
-  semester: number;
   baseProblem: string;
-  constraints: Constraint[];
+  constraintDescriptions: string[];
   seed: string;
-  commitmentHash: string;
-  rollNumberHashes: string[];
-  optedOutHashes: string[];
-  createdAt: string;
-  optOutDeadline: string;
+  // Each roster/opt-out member's hash is packed as raw bytes (not hex text)
+  // into one base64url blob per group — see roster.ts. Avoids hex's 2x byte
+  // blowup and the per-array-element JSON quote/comma overhead, which matters
+  // most for larger classes where these fields dominate the link's length.
+  rollNumberHashesB64: string;
+  optedOutHashesB64: string;
 }

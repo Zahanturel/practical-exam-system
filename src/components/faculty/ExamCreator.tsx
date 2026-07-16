@@ -2,12 +2,10 @@ import { useState, useCallback, useEffect } from "react";
 import type { ExamConfig, Constraint } from "../../lib/types";
 import { generateSeed, computeCommitmentHash } from "../../lib/commitment";
 import { saveExamConfig, exportConfigAsJson } from "../../lib/storage";
-import { composeQuestion } from "../../lib/compose";
 import { buildShareableConfig } from "../../lib/roster";
 import { encodeForLink } from "../../lib/linkCodec";
 import ConstraintEditor from "./ConstraintEditor";
 import RosterManager from "./RosterManager";
-import MarkdownPreview from "../shared/MarkdownPreview";
 import Toast from "../shared/Toast";
 
 interface Props {
@@ -29,13 +27,11 @@ export default function ExamCreator({ existingConfig, onSaved }: Props) {
   const [constraints, setConstraints] = useState<Constraint[]>(existingConfig?.constraints || []);
   const [rollNumbers, setRollNumbers] = useState<string[]>(existingConfig?.rollNumbers || []);
   const [optedOutRollNumbers, setOptedOutRollNumbers] = useState<string[]>(existingConfig?.optedOutRollNumbers || []);
-  const [optOutDeadline, setOptOutDeadline] = useState(existingConfig?.optOutDeadline || "");
   const [seed, setSeed] = useState(existingConfig?.seed || "");
   const [commitmentHash, setCommitmentHash] = useState(existingConfig?.commitmentHash || "");
   const [hashedConstraints, setHashedConstraints] = useState(
     existingConfig?.commitmentHash ? JSON.stringify(existingConfig.constraints) : ""
   );
-  const [previewIndex, setPreviewIndex] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
   const clearToast = useCallback(() => setToast(null), []);
   const [saved, setSaved] = useState(false);
@@ -65,7 +61,6 @@ export default function ExamCreator({ existingConfig, onSaved }: Props) {
     rollNumbers,
     optedOutRollNumbers,
     createdAt,
-    optOutDeadline,
   });
 
   useEffect(() => {
@@ -84,7 +79,7 @@ export default function ExamCreator({ existingConfig, onSaved }: Props) {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seed, commitmentHash, hashStale, courseName, courseCode, examDate, semester, baseProblem, constraints, rollNumbers, optedOutRollNumbers, optOutDeadline]);
+  }, [seed, commitmentHash, hashStale, courseName, courseCode, examDate, semester, baseProblem, constraints, rollNumbers, optedOutRollNumbers]);
 
   const handleSave = () => {
     const config = buildConfig();
@@ -215,14 +210,6 @@ export default function ExamCreator({ existingConfig, onSaved }: Props) {
 
                 autoFocus
               />
-              {baseProblem.trim() && (
-                <div>
-                  <p className="text-xs text-gray-400 mb-2">Preview:</p>
-                  <div className="border border-gray-100 rounded-lg p-4 bg-gray-50">
-                    <MarkdownPreview content={baseProblem} />
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
@@ -233,28 +220,6 @@ export default function ExamCreator({ existingConfig, onSaved }: Props) {
                 Each student gets the base problem plus one of these constraints. Add at least 2.
               </p>
               <ConstraintEditor constraints={constraints} onChange={setConstraints} />
-
-              {constraints.length >= 2 && baseProblem.trim() && (
-                <div className="mt-6 pt-4 border-t border-gray-200">
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">Preview what a student sees</h3>
-                  <div className="flex gap-2 flex-wrap mb-3">
-                    {constraints.map((c, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setPreviewIndex(i)}
-                        className={`text-xs px-2.5 py-1 rounded ${
-                          previewIndex === i ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        }`}
-                      >
-                        {c.label}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="border border-gray-200 rounded-lg p-5 bg-white">
-                    <MarkdownPreview content={composeQuestion(baseProblem, constraints[previewIndex])} />
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
@@ -266,8 +231,6 @@ export default function ExamCreator({ existingConfig, onSaved }: Props) {
                 optedOutRollNumbers={optedOutRollNumbers}
                 onRollNumbersChange={setRollNumbers}
                 onOptedOutChange={setOptedOutRollNumbers}
-                optOutDeadline={optOutDeadline}
-                onDeadlineChange={setOptOutDeadline}
               />
             </div>
           )}
